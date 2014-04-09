@@ -1,0 +1,23 @@
+{
+  "name": "rdiff",
+  "version": "0.0.1",
+  "description": "rdiff binding",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/tap ./test/test.js",
+    "install": "node-gyp rebuild"
+  },
+  "keywords": [
+    "rdiff",
+    "librsync"
+  ],
+  "gypfile": true,
+  "author": "Dhi Aurrahman <diorahman@rockybars.com>",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "^0.8.0"
+  },
+  "devDependencies": {
+    "tap": "^0.4.8"
+  }
+}
