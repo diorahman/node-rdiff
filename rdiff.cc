@@ -15,8 +15,9 @@ static size_t strong_len = RS_DEFAULT_STRONG_LEN;
 
 static int show_stats = 0;
 
-static int bzip2_level = 0;
-static int gzip_level  = 0;
+// cleaned up for a while
+// static int bzip2_level = 0;
+// static int gzip_level  = 0;
 
 enum {
   OPT_GZIP = 1069, OPT_BZIP2
