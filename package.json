@@ -4,7 +4,7 @@
   "description": "rdiff binding",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/tap ./test/test.js",
+    "test": "tap ./test/test.js",
     "install": "node-gyp rebuild"
   },
   "keywords": [
@@ -19,5 +19,16 @@
   },
   "devDependencies": {
     "tap": "^0.4.8"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/diorahman/node-rdiff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/diorahman/node-rdiff/issues"
+  },
+  "homepage": "https://github.com/diorahman/node-rdiff"
 }
