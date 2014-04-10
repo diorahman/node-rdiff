@@ -8,6 +8,8 @@ install librsync
 
 ## example
 
+the sync api
+
 ```js
 // a new file contains "hello"
 var a = "a.txt";
@@ -17,11 +19,23 @@ var b = "b.txt";
 
 // `a` wants to be `b`
 
-rdiff.signature (a, a + ".sig");
-rdiff.delta (a + ".sig", b, a + ".delta");
+rdiff.signatureSync (a, a + ".sig");
+rdiff.deltaSync (a + ".sig", b, a + ".delta");
 
 // the `a.patched` contains "hello world"
-rdiff.patch (a, a + ".delta", a + ".patched");
+rdiff.patchSync (a, a + ".delta", a + ".patched");
+```
+
+do the same with async api
+
+```js
+rdiff.signature(a, a + ".sig", function (err){
+  rdiff.delta(a + ".sig", b, a + ".delta", function(err){
+    rdiff.patchSync (a, a + ".delta", a + ".patched", function(err) {
+      // yeah! contents of `a` should equal contents of `a.patched`
+    });
+  })
+});
 ```
 
 ## license

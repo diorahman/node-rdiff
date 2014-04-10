@@ -4,8 +4,12 @@
 #include <string>
 #include <node.h>
 
-using namespace std;
+char * get(v8::Local<v8::Value> value, const char *fallback = "");
 
-int signature(const string &a, const string &b);
+extern "C" {
+  rs_result signature(char const * in, char const * out);
+  rs_result delta(char const * sig_name, char const * in, char const * out);
+  rs_result patch(char const * sig_name, char const * in, char const * out);
+}
 
 #endif

@@ -1,9 +1,8 @@
-var test = require("tap").test;
 var rdiff = require ("../");
 var fs = require ("fs");
 
 var a = __dirname + "/a.txt";
-var b = __dirname + "b.txt";
+var b = __dirname + "/b.txt";
 
 function remove (file){
   if (fs.existsSync(file)) {
@@ -11,21 +10,45 @@ function remove (file){
   }
 }
 
-remove(a);
-remove(b);
-remove(a + ".sig");
-remove(a + ".patched");
+function pre (done){
+  remove(a);
+  remove(b);
+  remove(a + ".sig");
+  remove(a + ".patched");
 
-test("three steps to patch a file", function (t) {
   fs.writeFileSync(a, "hello");
   fs.writeFileSync(b, "hello world");
+}
 
-  rdiff.signature (a, a + ".sig");
-  rdiff.delta (a + ".sig", b, a + ".delta");
-  rdiff.patch (a, a + ".delta", a + ".patched");
+describe ("three steps patching", function (){
+  it ("should patch the file using sync api", function(done){
 
-  var patched = fs.readFileSync(a + ".patched");
+    pre();
+    
+    rdiff.signatureSync (a, a + ".sig");
+    rdiff.deltaSync (a + ".sig", b, a + ".delta");
+    rdiff.patchSync (a, a + ".delta", a + ".patched");
+    
+    var patched = fs.readFileSync(a + ".patched");
+    patched.toString().should.equal("hello world");
 
-  t.equal(patched.toString(), "hello world", "should patched as 'hello world'");
-  t.end();
+    done();
+  });
+
+  it ("should patch the file using async api", function(done){
+
+    pre();
+
+    rdiff.signature (a, a + ".sig", function (err, ret){
+      rdiff.delta (a + ".sig", b, a + ".delta", function (err, ret){
+        rdiff.patch (a, a + ".delta", a + ".patched", function (err, ret){
+          
+          var patched = fs.readFileSync(a + ".patched");
+          patched.toString().should.equal("hello world");
+          
+          done();  
+        });
+      });
+    });    
+  });
 });
