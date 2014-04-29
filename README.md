@@ -31,7 +31,7 @@ do the same with async api
 ```js
 rdiff.signature(a, a + ".sig", function (err){
   rdiff.delta(a + ".sig", b, a + ".delta", function(err){
-    rdiff.patchSync (a, a + ".delta", a + ".patched", function(err) {
+    rdiff.patch (a, a + ".delta", a + ".patched", function(err) {
       // yeah! contents of `a` should equal contents of `a.patched`
     });
   })
