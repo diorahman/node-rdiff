@@ -1,6 +1,6 @@
 {
   "name": "rdiff",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "rdiff binding",
   "main": "index.js",
   "scripts": {
@@ -15,11 +15,11 @@
   "author": "Dhi Aurrahman <diorahman@rockybars.com>",
   "license": "MIT",
   "dependencies": {
-    "nan": "^0.8.0"
+    "nan": "^1.8.4"
   },
   "devDependencies": {
-    "mocha": "~1.18.2",
-    "should": "~3.3.0"
+    "mocha": "^2.2.5",
+    "should": "^6.0.3"
   },
   "directories": {
     "test": "test"

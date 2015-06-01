@@ -1,11 +1,3 @@
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-#include <node.h>
-#include <nan.h>
-
-#include <librsync-config.h>
-#include <librsync.h>
 #include "rdiff.h"
 
 using namespace v8;
@@ -15,36 +7,26 @@ class GenerateSignatureWorker : public NanAsyncWorker {
   GenerateSignatureWorker(NanCallback *callback, v8::Local<v8::Value> in, v8::Local<v8::Value> out)
     : NanAsyncWorker(callback), in(get(in)), out(get(out)) {}
   ~GenerateSignatureWorker() {}
-
-  // Executed inside the worker-thread.
-  // It is not safe to access V8, or V8 data structures
-  // here, so everything we need for input and output
-  // should go on `this`.
   void Execute () {
     ret = signature(in, out);
-
     if (ret != 0) {
-      errmsg = "Error generating signature";
+      errmsg = (char *) "Error generating signature";
     }
   }
 
-  // Executed when the async work is complete
-  // this function will be run inside the main event loop
-  // so it is safe to use V8 again
   void HandleOKCallback () {
     NanScope();
     Local<Value> argv[] = {
-        NanNewLocal<Value>(Null())
-      , Number::New(ret)
+      NanNull(),
+      NanNew<Number>(ret)
     };
-
     callback->Call(2, argv);
   };
 
-  void HandleErrorCallback (){
+  void HandleErrorCallback () {
     NanScope();
     Local<Value> argv[] = {
-      Exception::Error(String::New("fail!"))
+      Exception::Error(NanNew<String>(errmsg))
     };
     callback->Call(1, argv);
   }
@@ -53,6 +35,7 @@ class GenerateSignatureWorker : public NanAsyncWorker {
   int ret;
   const char * in;
   const char * out;
+  char * errmsg;
 };
 
 class GenerateDeltaWorker : public NanAsyncWorker {
@@ -61,35 +44,26 @@ class GenerateDeltaWorker : public NanAsyncWorker {
     : NanAsyncWorker(callback), sig_name(get(sig_name)), in(get(in)), out(get(out)) {}
   ~GenerateDeltaWorker() {}
 
-  // Executed inside the worker-thread.
-  // It is not safe to access V8, or V8 data structures
-  // here, so everything we need for input and output
-  // should go on `this`.
   void Execute () {
     ret = delta(sig_name, in, out);
-
     if (ret != 0) {
-      errmsg = "Error generating delta";
+      errmsg = (char*) "Error generating delta";
     }
   }
 
-  // Executed when the async work is complete
-  // this function will be run inside the main event loop
-  // so it is safe to use V8 again
   void HandleOKCallback () {
     NanScope();
     Local<Value> argv[] = {
-        NanNewLocal<Value>(Null())
-      , Number::New(ret)
+      NanNull(),
+      NanNew<Number>(ret)
     };
-
     callback->Call(2, argv);
   };
 
   void HandleErrorCallback (){
     NanScope();
     Local<Value> argv[] = {
-      Exception::Error(String::New("fail!"))
+      Exception::Error(NanNew<String>(errmsg))
     };
     callback->Call(1, argv);
   }
@@ -99,7 +73,7 @@ class GenerateDeltaWorker : public NanAsyncWorker {
   const char * sig_name;
   const char * in;
   const char * out;
-
+  char * errmsg;
 };
 
 class PatchWorker : public NanAsyncWorker {
@@ -107,36 +81,27 @@ class PatchWorker : public NanAsyncWorker {
   PatchWorker(NanCallback *callback, v8::Local<v8::Value> basis_name, v8::Local<v8::Value> in, v8::Local<v8::Value> out)
     : NanAsyncWorker(callback), basis_name(get(basis_name)), in(get(in)), out(get(out)) {}
   ~PatchWorker() {}
-
-  // Executed inside the worker-thread.
-  // It is not safe to access V8, or V8 data structures
-  // here, so everything we need for input and output
-  // should go on `this`.
+  
   void Execute () {
     ret = patch(basis_name, in, out);
-
     if (ret != 0) {
-      errmsg = "Error patching";
+      errmsg = (char*) "Error patching";
     }
   }
-
-  // Executed when the async work is complete
-  // this function will be run inside the main event loop
-  // so it is safe to use V8 again
+  
   void HandleOKCallback () {
     NanScope();
     Local<Value> argv[] = {
-        NanNewLocal<Value>(Null())
-      , Number::New(ret)
+      NanNull(),
+      NanNew<Number>(ret)
     };
-
     callback->Call(2, argv);
   };
 
   void HandleErrorCallback (){
     NanScope();
     Local<Value> argv[] = {
-      Exception::Error(String::New("fail!"))
+      Exception::Error(NanNew<String>(errmsg))
     };
     callback->Call(1, argv);
   }
@@ -146,19 +111,18 @@ class PatchWorker : public NanAsyncWorker {
   const char * basis_name;
   const char * in;
   const char * out;
+  char * errmsg;
 };
 
 NAN_METHOD (GenerateSignatureSync) {
   NanScope();
   int ret = signature(get(args[0]), get(args[1]));
-  NanReturnValue (Number::New(ret));
+  NanReturnValue (NanNew<Number>(ret));
 }
 
 NAN_METHOD(GenerateSignatureAsync) {
   NanScope();
-
   NanCallback *callback = new NanCallback(args[2].As<Function>());
-
   NanAsyncQueueWorker(new GenerateSignatureWorker(callback, args[0], args[1]));
   NanReturnUndefined();
 }
@@ -166,14 +130,12 @@ NAN_METHOD(GenerateSignatureAsync) {
 NAN_METHOD (GenerateDeltaSync) {
   NanScope();
   int ret = delta(get(args[0]), get(args[1]), get(args[2]));
-  NanReturnValue (Number::New(ret));
+  NanReturnValue (NanNew<Number>(ret));
 }
 
 NAN_METHOD(GenerateDeltaAsync) {
   NanScope();
-
   NanCallback * callback = new NanCallback(args[3].As<Function>());
-
   NanAsyncQueueWorker(new GenerateDeltaWorker(callback, args[0], args[1], args[2]));
   NanReturnUndefined();
 }
@@ -181,26 +143,24 @@ NAN_METHOD(GenerateDeltaAsync) {
 NAN_METHOD (PatchSync) {
   NanScope();
   int ret = patch(get(args[0]), get(args[1]), get(args[2]));
-  NanReturnValue (Number::New(ret));
+  NanReturnValue (NanNew<Number>(ret));
 }
 
 NAN_METHOD(PatchAsync) {
   NanScope();
-
   NanCallback * callback = new NanCallback(args[3].As<Function>());
-
   NanAsyncQueueWorker(new PatchWorker(callback, args[0], args[1], args[2]));
   NanReturnUndefined();
 }
 
 
 void Init(Handle<Object> exports) {
-  exports->Set(NanSymbol("signature"), FunctionTemplate::New(GenerateSignatureAsync)->GetFunction());
-  exports->Set(NanSymbol("signatureSync"), FunctionTemplate::New(GenerateSignatureSync)->GetFunction());
-  exports->Set(NanSymbol("delta"), FunctionTemplate::New(GenerateDeltaAsync)->GetFunction());
-  exports->Set(NanSymbol("deltaSync"), FunctionTemplate::New(GenerateDeltaSync)->GetFunction());
-  exports->Set(NanSymbol("patch"), FunctionTemplate::New(PatchAsync)->GetFunction());
-  exports->Set(NanSymbol("patchSync"), FunctionTemplate::New(PatchSync)->GetFunction());
+  exports->Set(NanNew<String>("signature"), NanNew<FunctionTemplate>(GenerateSignatureAsync)->GetFunction());
+  exports->Set(NanNew<String>("signatureSync"), NanNew<FunctionTemplate>(GenerateSignatureSync)->GetFunction());
+  exports->Set(NanNew<String>("delta"), NanNew<FunctionTemplate>(GenerateDeltaAsync)->GetFunction());
+  exports->Set(NanNew<String>("deltaSync"), NanNew<FunctionTemplate>(GenerateDeltaSync)->GetFunction());
+  exports->Set(NanNew<String>("patch"), NanNew<FunctionTemplate>(PatchAsync)->GetFunction());
+  exports->Set(NanNew<String>("patchSync"), NanNew<FunctionTemplate>(PatchSync)->GetFunction());
 }
 
 static size_t block_len = RS_DEFAULT_BLOCK_LEN;
@@ -242,7 +202,6 @@ int rs_file_close (FILE * f)
   if ((f == stdin) || (f == stdout)) return 0;
   return fclose(f);
 }
-
 
 rs_result signature(char const * in, char const * out) {
   FILE * basis_file, * sig_file;
@@ -315,7 +274,7 @@ rs_result patch(char const * basis_name, char const * in, char const * out)
 
 char * get(v8::Local<v8::Value> value, const char * fallback) {
   if (value->IsString()) {
-      v8::String::AsciiValue string(value);
+      NanAsciiString string(value);
       char *str = (char *) malloc(string.length() + 1);
       strcpy(str, *string);
       return str;
