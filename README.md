@@ -4,7 +4,7 @@ http://linux.die.net/man/1/rdiff
 
 ## pre
 
-install librsync `~0.9.7`
+install librsync `~0.9.7` (since the stable release is this one [http://sourceforge.net/projects/librsync/](stable))
 
 ## example
 
@@ -37,6 +37,10 @@ rdiff.signature(a, a + ".sig", function (err){
   })
 });
 ```
+
+## warning
+
+it doesn't do file existence checking yet.
 
 ## license
 MIT
