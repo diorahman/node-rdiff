@@ -4,7 +4,7 @@ http://linux.die.net/man/1/rdiff
 
 ## pre
 
-install librsync `~0.9.7` (since the stable release is this [one](http://sourceforge.net/projects/librsync/))
+install librsync `~0.9.7` or `>=1.0.0`.
 
 ## example
 

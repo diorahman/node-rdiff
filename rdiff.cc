@@ -175,7 +175,9 @@ NAN_MODULE_INIT(InitAll) {
 NODE_MODULE(rdiff, InitAll)
 
 static size_t block_len = RS_DEFAULT_BLOCK_LEN;
+#ifdef RS_DEFAULT_STRONG_LEN
 static size_t strong_len = RS_DEFAULT_STRONG_LEN;
+#endif
 
 // cleaned up for a while
 // static int bzip2_level = 0;
@@ -220,7 +222,11 @@ rs_result signature(const char *in, const char *out) {
     basis_file = rs_file_open(in, "rb");
     sig_file = rs_file_open(out, "wb");
 
+#ifdef RS_DEFAULT_STRONG_LEN
     result = rs_sig_file(basis_file, sig_file, block_len, strong_len, &stats);
+#else
+    result = rs_sig_file(basis_file, sig_file, block_len, (size_t) 8, RS_MD4_SIG_MAGIC, &stats);
+#endif
 
     rs_file_close(sig_file);
     rs_file_close(basis_file);
