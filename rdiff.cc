@@ -1,5 +1,4 @@
 #include "rdiff.h"
-#include <iostream>
 
 using namespace v8;
 
@@ -282,4 +281,3 @@ rs_result patch(const char* basis_name, const char *in, const char *out) {
 inline std::string get(const v8::Local<v8::Value> &value) {
     return std::string(*v8::String::Utf8Value(value));
 }
-
